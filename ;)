@@ -1,23 +1,24 @@
--- MM2 Optimized Menu (t.me/menu_script)
+-- MM2 Premium Menu (mm2 by Menu t.me/menu_script)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
--- Налаштування
+-- Налаштування функцій
 local Flying = false
 local FastSpeed = false
 local ESP_Active = false
 local Autofarm = false
+local InfJump = false
 
 local FlySpeed = 50
 local NormalSpeed = 16
 local CustomSpeed = 50
 
--- GUI меню
+-- Створення GUI меню (Трохи збільшено під довгу назву)
 local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 160, 0, 220)
+MainFrame.Size = UDim2.new(0, 190, 0, 260)
 MainFrame.Position = UDim2.new(0.1, 0, 0.3, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.BorderSizePixel = 2
@@ -25,16 +26,17 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Text = "mm2 menu t.me/menu_script" -- Твоя нова назва меню
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "mm2 by Menu t.me/menu_script" -- Твоя нова назва
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Title.TextSize = 11 -- Трохи зменшив шрифт, щоб усе гарно помістилося в один рядок
+Title.TextSize = 11
 Title.TextScaled = true
 
+-- Функція створення кнопок
 local function CreateButton(text, pos, callback)
     local btn = Instance.new("TextButton", MainFrame)
-    btn.Size = UDim2.new(0, 140, 0, 35)
+    btn.Size = UDim2.new(0, 170, 0, 35)
     btn.Position = pos
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -50,9 +52,9 @@ local function CreateButton(text, pos, callback)
     return btn
 end
 
--- 1. ПОЛІТ
+-- 1. ПОЛІТ (FLY)
 local bodyVel, bodyGyro
-CreateButton("Fly: OFF", UDim2.new(0, 10, 0, 40), function(val)
+CreateButton("Fly: OFF", UDim2.new(0, 10, 0, 45), function(val)
     Flying = val
     local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
     if not root then return end
@@ -80,7 +82,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 2. ШВИДКІСТЬ
+-- 2. ШВИДКІСТЬ (SPEED)
 CreateButton("Speed: OFF", UDim2.new(0, 10, 0, 85), function(val)
     FastSpeed = val
 end)
@@ -91,7 +93,7 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Очищення ESP
+-- Очищення функцій при вимкненні ESP
 local function ClearESP()
     for _, p in ipairs(Players:GetPlayers()) do
         if p.Character and p.Character:FindFirstChild("MM2_ESP") then
@@ -100,15 +102,15 @@ local function ClearESP()
     end
 end
 
--- 3. ОПТИМІЗОВАНИЙ ESP (БЕЗ ЛАГІВ)
-CreateButton("ESP: OFF", UDim2.new(0, 10, 0, 130), function(val)
+-- 3. ОПТИМІЗОВАНИЙ ESP (МАРДЕР / ШЕРИФ)
+CreateButton("ESP: OFF", UDim2.new(0, 10, 0, 125), function(val)
     ESP_Active = val
     if not val then ClearESP() end
 end)
 
 task.spawn(function()
     while true do
-        task.wait(1)
+        task.wait(0.5) -- Оновлення двічі на секунду, щоб взагалі не лагало
         if ESP_Active then
             for _, p in ipairs(Players:GetPlayers()) do
                 if p ~= LP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
@@ -127,13 +129,13 @@ task.spawn(function()
                     end
                     
                     if isMurder then
-                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Червоний
                         highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
                     elseif isSheriff then
-                        highlight.FillColor = Color3.fromRGB(0, 0, 255)
+                        highlight.FillColor = Color3.fromRGB(0, 0, 255) -- Синій
                         highlight.OutlineColor = Color3.fromRGB(0, 0, 255)
                     else
-                        highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                        highlight.FillColor = Color3.fromRGB(0, 255, 0) -- Зелений мирний
                         highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
                     end
                 end
@@ -142,27 +144,37 @@ task.spawn(function()
     end
 end)
 
--- 4. АВТОФАРМ МОНЕТ
-CreateButton("Autofarm: OFF", UDim2.new(0, 10, 0, 175), function(val)
+-- 4. НЕСКІНЧЕННИЙ СТРИБОК (INF JUMP)
+CreateButton("Inf Jump: OFF", UDim2.new(0, 10, 0, 165), function(val)
+    InfJump = val
+end)
+
+UserInputService.JumpRequest:Connect(function()
+    if InfJump and LP.Character and LP.Character:FindFirstChild("Humanoid") then
+        LP.Character.Humanoid:ChangeState("Jumping")
+    end
+end)
+
+-- 5. ФІКС АВТОФАРМУ МОНЕТ (Пошук по всьому мапі)
+CreateButton("Autofarm: OFF", UDim2.new(0, 10, 0, 205), function(val)
     Autofarm = val
 end)
 
 task.spawn(function()
     while true do
-        task.wait(0.5)
+        task.wait(0.3)
         if Autofarm and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            local container = workspace:FindFirstChild("Normal") or workspace:FindFirstChild("CoinContainer")
-            if container then
-                local coin = container:FindFirstChild("Coin_Cent", true) or container:FindFirstChild("Coin", true)
-                if coin and coin:FindFirstChild("TouchInterest") then
-                    LP.Character.HumanoidRootPart.CFrame = coin.CFrame
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if Autofarm and (obj.Name == "Coin" or obj.Name == "Coin_Cent" or obj.Name == "GoldPile") and obj:IsA("BasePart") then
+                    LP.Character.HumanoidRootPart.CFrame = obj.CFrame
+                    task.wait(0.1) -- Затримка, щоб гру не крашило
                 end
             end
         end
     end
 end)
 
--- Скидання при смерті
+-- Автоскидання при ресеті персонажа
 LP.CharacterAdded:Connect(function()
     Flying = false
     ClearESP()
